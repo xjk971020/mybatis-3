@@ -98,6 +98,10 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 /**
  * @author Clinton Begin
  */
+/**
+ * Mybatis核心类，在这里面定义了所有的配置，即Mybatis-config.xml文件中的配置在经过
+ * BaseBuilder的基类进行解析后会将解析出来的配置存放到这里面。
+ */
 public class Configuration {
 
   protected Environment environment;

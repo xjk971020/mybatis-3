@@ -100,6 +100,10 @@ public class XMLConfigBuilder extends BaseBuilder {
     return configuration;
   }
 
+  /**
+   * 解析各种节点
+   * @param root configuration根节点
+   */
   private void parseConfiguration(XNode root) {
     try {
       // issue #117 read properties first
@@ -219,19 +223,37 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * 解析propertities
+   * 官方样例
+   *
+   * <properties resource="org/mybatis/example/config.properties">
+   *   <property name="username" value="root"/>
+   *   <property name="password" value="123"/>
+   * </properties>
+   *
+   * @param context properties节点
+   * @throws Exception
+   */
   private void propertiesElement(XNode context) throws Exception {
     if (context != null) {
+      //properties子节点的优先级最低，配置的时候尽量不要跟url或resource属性中的配置重复
+      //不然会被覆盖
       Properties defaults = context.getChildrenAsProperties();
       String resource = context.getStringAttribute("resource");
       String url = context.getStringAttribute("url");
+      //注意，resource属性和url属性不能同时存在，否则将抛出无法解析的异常
       if (resource != null && url != null) {
         throw new BuilderException("The properties element cannot specify both a URL and a resource based property file reference.  Please specify one or the other.");
       }
+      //后面读取的属性会覆盖原来已有的，因为properties继承自HashTable，还是键值对，后put的值会覆盖之前put进来的值
+      //优先级第二的为url或resource属性中的配置
       if (resource != null) {
         defaults.putAll(Resources.getResourceAsProperties(resource));
       } else if (url != null) {
         defaults.putAll(Resources.getUrlAsProperties(url));
       }
+      //优先级最高的为cofiguration类中的配置
       Properties vars = configuration.getVariables();
       if (vars != null) {
         defaults.putAll(vars);
@@ -241,12 +263,16 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  //处理每一个设置子节点，如果没有设置则赋上默认值
   private void settingsElement(Properties props) {
     configuration.setAutoMappingBehavior(AutoMappingBehavior.valueOf(props.getProperty("autoMappingBehavior", "PARTIAL")));
     configuration.setAutoMappingUnknownColumnBehavior(AutoMappingUnknownColumnBehavior.valueOf(props.getProperty("autoMappingUnknownColumnBehavior", "NONE")));
+    //开启二级缓存
     configuration.setCacheEnabled(booleanValueOf(props.getProperty("cacheEnabled"), true));
     configuration.setProxyFactory((ProxyFactory) createInstance(props.getProperty("proxyFactory")));
+    //开启延迟加载
     configuration.setLazyLoadingEnabled(booleanValueOf(props.getProperty("lazyLoadingEnabled"), false));
+    //当启用时，对任意延迟属性的调用会使带有延迟加载属性的对象完整加载，反之，每种属性都会按需加载
     configuration.setAggressiveLazyLoading(booleanValueOf(props.getProperty("aggressiveLazyLoading"), false));
     configuration.setMultipleResultSetsEnabled(booleanValueOf(props.getProperty("multipleResultSetsEnabled"), true));
     configuration.setUseColumnLabel(booleanValueOf(props.getProperty("useColumnLabel"), true));

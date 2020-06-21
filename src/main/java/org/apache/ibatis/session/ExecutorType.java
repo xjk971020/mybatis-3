@@ -18,6 +18,13 @@ package org.apache.ibatis.session;
 /**
  * @author Clinton Begin
  */
+
+/**
+ * Excuter执行类型
+ * Simple => 这个执行器类型不做特殊的事情。它为每个语句的执行创建一个新的预处理语句。
+ * Reuse => 这个执行器类型会复用预处理语句
+ * BATCH => 这个执行器会批量执行所有更新语句，如果SELECT在它们中间执行，必要时请把它们区分开来以保证行为的易读性
+ */
 public enum ExecutorType {
   SIMPLE, REUSE, BATCH
 }
