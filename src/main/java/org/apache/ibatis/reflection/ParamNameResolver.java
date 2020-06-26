@@ -49,6 +49,11 @@ public class ParamNameResolver {
    * <li>aMethod(int a, int b) -&gt; {{0, "0"}, {1, "1"}}</li>
    * <li>aMethod(int a, RowBounds rb, int b) -&gt; {{0, "0"}, {2, "1"}}</li>
    * </ul>
+   * 存放方法参数的索引和参数的名字
+   * key -> 索引
+   * value -> 参数名
+   * useActualParamName=true  0->arg0 1->arg1 ..... n->argn
+   * useActualParamName=true  0->0 1->1 ..... n->n
    */
   private final SortedMap<Integer, String> names;
 
@@ -57,11 +62,14 @@ public class ParamNameResolver {
   public ParamNameResolver(Configuration config, Method method) {
     this.useActualParamName = config.isUseActualParamName();
     final Class<?>[] paramTypes = method.getParameterTypes();
+    //获取方法参数上的注解，一个方法有多个参数，一个参数可能有多个注解，所以是二维数组的形式
     final Annotation[][] paramAnnotations = method.getParameterAnnotations();
     final SortedMap<Integer, String> map = new TreeMap<>();
+    //方法参数的个数
     int paramCount = paramAnnotations.length;
     // get names from @Param annotations
     for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
+      //如果参数类型是ResultHandler或RowBounds类型就直接跳过
       if (isSpecialParameter(paramTypes[paramIndex])) {
         // skip special parameters
         continue;
@@ -76,12 +84,14 @@ public class ParamNameResolver {
       }
       if (name == null) {
         // @Param was not specified.
+        // 没用@Param注解修饰，且useActualParamName参数为true，则sql中入参可以使用参数名
         if (useActualParamName) {
           name = getActualParamName(method, paramIndex);
         }
         if (name == null) {
           // use the parameter index as the name ("0", "1", ...)
           // gcode issue #71
+          // sql中直接使用#{1},#{2}....#{n}入参
           name = String.valueOf(map.size());
         }
       }
@@ -90,6 +100,7 @@ public class ParamNameResolver {
     names = Collections.unmodifiableSortedMap(map);
   }
 
+  //获得method方法中第paramIndex位置的方法参数的名称
   private String getActualParamName(Method method, int paramIndex) {
     return ParamNameUtil.getParamNames(method).get(paramIndex);
   }
@@ -100,11 +111,11 @@ public class ParamNameResolver {
 
   /**
    * Returns parameter names referenced by SQL providers.
-   *
+   * 返回方法中所有的参数名称
    * @return the names
    */
   public String[] getNames() {
-    return names.values().toArray(new String[0]);
+      return names.values().toArray(new String[0]);
   }
 
   /**
@@ -118,6 +129,15 @@ public class ParamNameResolver {
    * @param args
    *          the args
    * @return the named params
+   *
+   * 方法调用链
+   * MapperProxy.invoke(Object proxy, Method method, Object[] args, SqlSession sqlSession) ->
+   * MapperMethod.execute(SqlSession sqlSession, Object[] args) ->
+   * MethodSignature.convertArgsToSqlCommandParam(Object[] args) ->
+   * ParamNameResolver.getNamedParams(Object[] args)
+   *
+   * 简单来说，就是将接口方法中的参数转化为xml文件中sql语句中参数的形式
+   *
    */
   public Object getNamedParams(Object[] args) {
     final int paramCount = names.size();

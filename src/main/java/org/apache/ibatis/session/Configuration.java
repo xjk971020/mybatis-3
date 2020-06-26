@@ -975,6 +975,7 @@ public class Configuration {
 
     private static final long serialVersionUID = -4950446264854982944L;
     private final String name;
+    //当将value传入StrictMap中时，如果发生异常，则用此类生产错误。(通常在抛异常时使用)
     private BiFunction<V, V, String> conflictMessageProducer;
 
     public StrictMap(String name, int initialCapacity, float loadFactor) {

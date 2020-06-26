@@ -43,6 +43,8 @@ import org.apache.ibatis.session.SqlSession;
  * @author Eduardo Macarron
  * @author Lasse Voss
  * @author Kazuki Shimizu
+ * MapperProxy类中会存放接口和对应的接口实现类，该实现类用MapperMethodInvoker接口的实现类封装，
+ * 实际的接口实现增删改查等方法还是由MapperMethod类实现，详细请看本类中execute()方法实现
  */
 public class MapperMethod {
 
@@ -217,7 +219,7 @@ public class MapperMethod {
   }
 
   public static class SqlCommand {
-
+    // SQL 的名称，是接口的全限定名+方法名组成
     private final String name;
     private final SqlCommandType type;
 
@@ -231,6 +233,7 @@ public class MapperMethod {
           name = null;
           type = SqlCommandType.FLUSH;
         } else {
+          //没有找到接口的实现，即没有找到mapper.xml文件
           throw new BindingException("Invalid bound statement (not found): "
               + mapperInterface.getName() + "." + methodName);
         }
@@ -253,6 +256,7 @@ public class MapperMethod {
 
     private MappedStatement resolveMappedStatement(Class<?> mapperInterface, String methodName,
         Class<?> declaringClass, Configuration configuration) {
+      //接口名.方法名 eg:com.mybatis.mapper.queryUserById
       String statementId = mapperInterface.getName() + "." + methodName;
       if (configuration.hasStatement(statementId)) {
         return configuration.getMappedStatement(statementId);
@@ -272,6 +276,7 @@ public class MapperMethod {
     }
   }
 
+  //定义方法中的一些参数
   public static class MethodSignature {
 
     private final boolean returnsMany;
@@ -279,10 +284,10 @@ public class MapperMethod {
     private final boolean returnsVoid;
     private final boolean returnsCursor;
     private final boolean returnsOptional;
-    private final Class<?> returnType;
-    private final String mapKey;
-    private final Integer resultHandlerIndex;
-    private final Integer rowBoundsIndex;
+    private final Class<?> returnType; //返回的方法类型
+    private final String mapKey; //如果返回值为map，则该字段记录了作为key的列名
+    private final Integer resultHandlerIndex; //ResultHanlder在参数列表中的位置
+    private final Integer rowBoundsIndex; // RowBounds参数在参数列表中的位置
     private final ParamNameResolver paramNameResolver;
 
     public MethodSignature(Configuration configuration, Class<?> mapperInterface, Method method) {

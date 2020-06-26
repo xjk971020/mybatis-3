@@ -30,10 +30,13 @@ import org.apache.ibatis.session.SqlSession;
  * @author Clinton Begin
  * @author Eduardo Macarron
  * @author Lasse Voss
+ * mybatis接口和代理工厂的注册中心
  */
 public class MapperRegistry {
 
+  // 解析出来的mybatis全局配置
   private final Configuration config;
+  // Mapper 的注册中心，所有mapper代理工厂都存储在缓存中。
   private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<>();
 
   public MapperRegistry(Configuration config) {
@@ -58,6 +61,7 @@ public class MapperRegistry {
   }
 
   public <T> void addMapper(Class<T> type) {
+    // 如果不是接口，直接不添加
     if (type.isInterface()) {
       if (hasMapper(type)) {
         throw new BindingException("Type " + type + " is already known to the MapperRegistry.");

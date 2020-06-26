@@ -24,14 +24,19 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.apache.ibatis.reflection.ExceptionUtil;
 import org.apache.ibatis.session.SqlSession;
 
+import javax.management.relation.Role;
+
 /**
  * @author Clinton Begin
  * @author Eduardo Macarron
+ * MapperProxy是一个代理类，代理的是一整个mapper，即mapper中方法的执行是通过此代理类执行的
  */
 public class MapperProxy<T> implements InvocationHandler, Serializable {
 
@@ -41,7 +46,11 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   private static final Constructor<Lookup> lookupConstructor;
   private static final Method privateLookupInMethod;
   private final SqlSession sqlSession;
+  //mapper映射的那个接口，即nampspace中的那个类
   private final Class<T> mapperInterface;
+  // 存放方法缓存，即将mapper中的所有接口存放进去，在执行时通过代理模式拿出来
+  // 所以mybatis的接口不需要实现类也可以执行mapper.xml中的sql
+  // MapperMethodInvoker 会完成参数的转换和 SQL 的执行功能
   private final Map<Method, MapperMethodInvoker> methodCache;
 
   public MapperProxy(SqlSession sqlSession, Class<T> mapperInterface, Map<Method, MapperMethodInvoker> methodCache) {
@@ -76,12 +85,17 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     lookupConstructor = lookup;
   }
 
+  /*
+   * 代理方法
+   */
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
+      // 先判断要代理的这个类是不是Object类，是的话直接执行方法
       if (Object.class.equals(method.getDeclaringClass())) {
         return method.invoke(this, args);
       } else {
+        //从methodCache中获取方法的实际调用类再去调用方法
         return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
       }
     } catch (Throwable t) {
@@ -94,6 +108,11 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
       // A workaround for https://bugs.openjdk.java.net/browse/JDK-8161372
       // It should be removed once the fix is backported to Java 8 or
       // MyBatis drops Java 8 support. See gh-1929
+      /**
+       * 拿到MapperProxyFactory中的methodCache变量，该变量初始化时会存入方法和方法调用者，
+       * 我们根据key即Method类去获取MapperMethodInvoker即方法执行者，然后进行执行
+       */
+      // todo MapperProxy解释好像不够清晰
       MapperMethodInvoker invoker = methodCache.get(method);
       if (invoker != null) {
         return invoker;
