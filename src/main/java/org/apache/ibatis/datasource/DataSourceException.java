@@ -19,6 +19,7 @@ import org.apache.ibatis.exceptions.PersistenceException;
 
 /**
  * @author Clinton Begin
+ * 定义数据源连接失败时抛出的异常
  */
 public class DataSourceException extends PersistenceException {
 

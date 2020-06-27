@@ -32,13 +32,25 @@ class PooledConnection implements InvocationHandler {
   private static final Class<?>[] IFACES = new Class<?>[] { Connection.class };
 
   private final int hashCode;
+  /**
+   * 记录当前的 PooledConnection 对象所在的 PooledDataSource 对象，
+   * 该 PooledConnection 对象是从 PooledDataSource 对象中获取的，
+   * 当调用 close 方法时会将 PooledConnection 放回该 PooledDataSource 中去。
+   */
   private final PooledDataSource dataSource;
+  /** 真正的数据库连接 */
   private final Connection realConnection;
+  /** 数据库连接的代理对象 */
   private final Connection proxyConnection;
+  /** 从连接池中取出该连接的时间戳 */
   private long checkoutTimestamp;
+  /** 该连接的创建时间时间戳 */
   private long createdTimestamp;
+  /** 该连接上一次使用的时间戳 */
   private long lastUsedTimestamp;
+  /** 用于标识该连接所在的连接池，由URL+username+password 计算出来的hash值，对应的是PoolDataSource中的expectedConnectionTypeCode */
   private int connectionTypeCode;
+  /** 该连接是否有效 */
   private boolean valid;
 
   /**
@@ -61,6 +73,7 @@ class PooledConnection implements InvocationHandler {
 
   /**
    * Invalidates the connection.
+   * 将连接设置为非法
    */
   public void invalidate() {
     valid = false;
@@ -70,6 +83,7 @@ class PooledConnection implements InvocationHandler {
    * Method to see if the connection is usable.
    *
    * @return True if the connection is usable
+   * 检测连接是否是可用的
    */
   public boolean isValid() {
     return valid && realConnection != null && dataSource.pingConnection(this);
@@ -242,6 +256,7 @@ class PooledConnection implements InvocationHandler {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     String methodName = method.getName();
+    //如果是关闭方法的话，则将该连接放回连接池中，而不是真正的关闭
     if (CLOSE.equals(methodName)) {
       dataSource.pushConnection(this);
       return null;
@@ -259,6 +274,10 @@ class PooledConnection implements InvocationHandler {
 
   }
 
+  /**
+   * 检查连接是否有效
+   * @throws SQLException
+   */
   private void checkConnection() throws SQLException {
     if (!valid) {
       throw new SQLException("Error accessing PooledConnection. Connection is invalid.");

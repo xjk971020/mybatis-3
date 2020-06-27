@@ -21,9 +21,11 @@ import javax.sql.DataSource;
 
 /**
  * @author Clinton Begin
+ * 生产数据源抽象工厂
  */
 public interface DataSourceFactory {
 
+  //设置DataSource的相关属性，一般在初始化后设置
   void setProperties(Properties props);
 
   DataSource getDataSource();

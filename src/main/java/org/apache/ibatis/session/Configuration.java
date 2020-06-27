@@ -189,7 +189,9 @@ public class Configuration {
     typeAliasRegistry.registerAlias("MANAGED", ManagedTransactionFactory.class);
 
     typeAliasRegistry.registerAlias("JNDI", JndiDataSourceFactory.class);
+    //将池化数据源工厂注册进类型注册中心(typeAliasRegistry)
     typeAliasRegistry.registerAlias("POOLED", PooledDataSourceFactory.class);
+    //将非池化数据源工厂注册进类型注册中心(typeAliasRegistry)
     typeAliasRegistry.registerAlias("UNPOOLED", UnpooledDataSourceFactory.class);
 
     typeAliasRegistry.registerAlias("PERPETUAL", PerpetualCache.class);

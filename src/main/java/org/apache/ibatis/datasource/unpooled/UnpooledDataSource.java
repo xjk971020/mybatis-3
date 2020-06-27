@@ -35,11 +35,15 @@ import org.apache.ibatis.io.Resources;
 /**
  * @author Clinton Begin
  * @author Eduardo Macarron
+ * 非池化数据源，用来获取非池化的数据库连接
  */
 public class UnpooledDataSource implements DataSource {
 
+  //当前驱动类的ClassLoader实例
   private ClassLoader driverClassLoader;
+  //当前驱动的属性
   private Properties driverProperties;
+  //注册驱动类
   private static Map<String, Driver> registeredDrivers = new ConcurrentHashMap<>();
 
   private String driver;
@@ -47,8 +51,11 @@ public class UnpooledDataSource implements DataSource {
   private String username;
   private String password;
 
+  /** 是否自动提交 */
   private Boolean autoCommit;
+  /** 默认事务隔离级别 */
   private Integer defaultTransactionIsolationLevel;
+  /** 默认的网络连接超时时间 */
   private Integer defaultNetworkTimeout;
 
   static {
@@ -222,15 +229,22 @@ public class UnpooledDataSource implements DataSource {
   private Connection doGetConnection(Properties properties) throws SQLException {
     initializeDriver();
     Connection connection = DriverManager.getConnection(url, properties);
+    //配置连接属性,主要是设置超时时间、是否自动提交和事务隔离级别
     configureConnection(connection);
     return connection;
   }
 
+  /**
+   * 加载数据库驱动
+   * 由于系统中可能会连接到多种数据库，所以使用registeredDrivers来管理多种数据库驱动
+   * @throws SQLException
+   */
   private synchronized void initializeDriver() throws SQLException {
     if (!registeredDrivers.containsKey(driver)) {
       Class<?> driverType;
       try {
         if (driverClassLoader != null) {
+          //加载驱动，使用Class.forName()加载
           driverType = Class.forName(driver, true, driverClassLoader);
         } else {
           driverType = Resources.classForName(driver);
@@ -238,7 +252,9 @@ public class UnpooledDataSource implements DataSource {
         // DriverManager requires the driver to be loaded via the system ClassLoader.
         // http://www.kfu.com/~nsayer/Java/dyn-jdbc.html
         Driver driverInstance = (Driver) driverType.getDeclaredConstructor().newInstance();
+        //DriverProxy实现Driver，类似代理模式
         DriverManager.registerDriver(new DriverProxy(driverInstance));
+        //设置驱动要驱动注册中心
         registeredDrivers.put(driver, driverInstance);
       } catch (Exception e) {
         throw new SQLException("Error setting driver on UnpooledDataSource. Cause: " + e);
@@ -246,6 +262,11 @@ public class UnpooledDataSource implements DataSource {
     }
   }
 
+  /**
+   * 获取到数据库连接后为连接设置默认参数
+   * @param conn 获取到的数据库连接
+   * @throws SQLException
+   */
   private void configureConnection(Connection conn) throws SQLException {
     if (defaultNetworkTimeout != null) {
       conn.setNetworkTimeout(Executors.newSingleThreadExecutor(), defaultNetworkTimeout);

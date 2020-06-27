@@ -23,17 +23,30 @@ import java.util.List;
  */
 public class PoolState {
 
+  /** 该PoolState所属的DataSource */
   protected PooledDataSource dataSource;
 
+  /** 管理空闲连接的列表 */
   protected final List<PooledConnection> idleConnections = new ArrayList<>();
+  /** 管理活跃连接的列表 */
   protected final List<PooledConnection> activeConnections = new ArrayList<>();
+  /** 请求数据库连接的次数 */
   protected long requestCount = 0;
+  /** 获取连接的累计时间 */
   protected long accumulatedRequestTime = 0;
+  /** checkoutTime 表示从连接池中获取连接到归还连接的时间 */
+  /** accumulatedCheckoutTime 记录了所有连接的累计 checkoutTime 时长 */
   protected long accumulatedCheckoutTime = 0;
+
+  /** 连接超时的累计个数 */
   protected long claimedOverdueConnectionCount = 0;
+  /** 累计超时时间 */
   protected long accumulatedCheckoutTimeOfOverdueConnections = 0;
+  /** 累计等待时间 */
   protected long accumulatedWaitTime = 0;
+  /** 累计等待次数 */
   protected long hadToWaitCount = 0;
+  /** 无效的连接数 */
   protected long badConnectionCount = 0;
 
   public PoolState(PooledDataSource dataSource) {
