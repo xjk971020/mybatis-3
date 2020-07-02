@@ -51,14 +51,26 @@ import org.apache.ibatis.session.Configuration;
 /**
  * @author Clinton Begin
  * @author Kazuki Shimizu
+ * 类型处理器注册中心
+ * 主要处理JdbcType和Java类型的转换
  */
 public final class TypeHandlerRegistry {
 
+  // Jdbc 类型和类型处理器 TypeHandler 的对应关系
+  // 该集合主要用于从结果集中读取数据时，从 Jdbc 类型转换为 Java 类型
   private final Map<JdbcType, TypeHandler<?>>  jdbcTypeHandlerMap = new EnumMap<>(JdbcType.class);
+
+  // Java类型和Jdbc类型的对应关系，当Java类型向指定的Jdbc类型转换时，需要使用的 TypeHandler 对象
+  // 一种Java类型可以对应多种Jdbc 类型，如 String 对应 char 和 varchar
   private final Map<Type, Map<JdbcType, TypeHandler<?>>> typeHandlerMap = new ConcurrentHashMap<>();
+
+  // 未知类型，当找不到对应类型时，使用该类型，也就是 ObjectTypeHandler
   private final TypeHandler<Object> unknownTypeHandler;
+
+  // 存放全部的 TypeHandler 类型以及该类型相应的 TypeHandler 对象
   private final Map<Class<?>, TypeHandler<?>> allTypeHandlersMap = new HashMap<>();
 
+  // 空类型
   private static final Map<JdbcType, TypeHandler<?>> NULL_TYPE_HANDLER_MAP = Collections.emptyMap();
 
   private Class<? extends TypeHandler> defaultEnumTypeHandler = EnumTypeHandler.class;
@@ -205,6 +217,12 @@ public final class TypeHandlerRegistry {
     return javaTypeReference != null && getTypeHandler(javaTypeReference, jdbcType) != null;
   }
 
+  /*******************************************************************************************
+   *
+   * 以下为获取类型处理器的方法
+   *
+   ********************************************************************************************/
+
   public TypeHandler<?> getMappingTypeHandler(Class<? extends TypeHandler<?>> handlerType) {
     return allTypeHandlersMap.get(handlerType);
   }
@@ -327,6 +345,8 @@ public final class TypeHandlerRegistry {
 
   //
   // REGISTER INSTANCE
+  //
+  // 以下为注册类型处理器的方法
   //
 
   // Only handler

@@ -102,6 +102,9 @@ public class TypeAliasRegistry {
 
   @SuppressWarnings("unchecked")
   // throws class cast exception as well if types cannot be assigned
+  /**
+   * 根据别名从类的注册中心中获取该类的clazz对象
+   */
   public <T> Class<T> resolveAlias(String string) {
     try {
       if (string == null) {
@@ -132,12 +135,18 @@ public class TypeAliasRegistry {
     for (Class<?> type : typeSet) {
       // Ignore inner classes and interfaces (including package-info.java)
       // Skip also inner classes. See issue #6
+      // 判断一个类是否是匿名内部类或者是接口或者是成员内部类
+      // isAnonymousClass()方法是判断一个类是否是匿名内部类
       if (!type.isAnonymousClass() && !type.isInterface() && !type.isMemberClass()) {
         registerAlias(type);
       }
     }
   }
 
+  /**
+   * 获取class上的@Alias注解中的value作为别名
+   * @param type 想要注册别名的类
+   */
   public void registerAlias(Class<?> type) {
     String alias = type.getSimpleName();
     Alias aliasAnnotation = type.getAnnotation(Alias.class);
@@ -147,6 +156,11 @@ public class TypeAliasRegistry {
     registerAlias(alias, type);
   }
 
+  /**
+   * 将类的别名和类型注册到别名注册器(typeAliases)中
+   * @param alias 类的别名
+   * @param value 类的类型
+   */
   public void registerAlias(String alias, Class<?> value) {
     if (alias == null) {
       throw new TypeException("The parameter alias cannot be null");
@@ -159,6 +173,11 @@ public class TypeAliasRegistry {
     typeAliases.put(key, value);
   }
 
+  /**
+   * 加载value的类，并将alias作为别名注册
+   * @param alias 类的别名
+   * @param value 类的名称
+   */
   public void registerAlias(String alias, String value) {
     try {
       registerAlias(alias, Resources.classForName(value));
@@ -169,7 +188,7 @@ public class TypeAliasRegistry {
 
   /**
    * Gets the type aliases.
-   *
+   * 获取类的注册中心
    * @return the type aliases
    * @since 3.2.2
    */

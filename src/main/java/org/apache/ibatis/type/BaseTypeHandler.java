@@ -34,6 +34,12 @@ import org.apache.ibatis.session.Configuration;
  * @author Clinton Begin
  * @author Simone Tripodi
  * @author Kzuki Shimizu
+ *
+ * 模板方法设计模式
+ * 主要抽象以下三个方法，并将具体实现推迟到具体类型处理器的实现中
+ * getNullableResult(CallableStatement cs, int columnIndex)
+ * getNullableResult(ResultSet rs, int columnIndex)
+ *  getNullableResult(ResultSet rs, String columnName)
  */
 public abstract class BaseTypeHandler<T> extends TypeReference<T> implements TypeHandler<T> {
 
@@ -62,6 +68,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
         throw new TypeException("JDBC requires that the JdbcType must be specified for all nullable parameters.");
       }
       try {
+        // 如果参数为空，则设置为 null
         ps.setNull(i, jdbcType.TYPE_CODE);
       } catch (SQLException e) {
         throw new TypeException("Error setting null for parameter #" + i + " with JdbcType " + jdbcType + " . "
@@ -70,6 +77,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
       }
     } else {
       try {
+        // 如果参数不为空，则由子类实现，该方法是一个抽象方法
         setNonNullParameter(ps, i, parameter, jdbcType);
       } catch (Exception e) {
         throw new TypeException("Error setting non null for parameter #" + i + " with JdbcType " + jdbcType + " . "
@@ -105,7 +113,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
       throw new ResultMapException("Error attempting to get column #" + columnIndex + " from callable statement.  Cause: " + e, e);
     }
   }
-
+  // 为 SQL 设置非空的参数，由各个子类自己实现
   public abstract void setNonNullParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException;
 
   /**
@@ -118,6 +126,8 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
    * @return the nullable result
    * @throws SQLException
    *           the SQL exception
+   *
+   * 获取结果，由各个子类自己实现
    */
   public abstract T getNullableResult(ResultSet rs, String columnName) throws SQLException;
 

@@ -22,9 +22,20 @@ import java.sql.SQLException;
 
 /**
  * @author Clinton Begin
+ * 类型转换器抽象接口
+ * 各种基本类型处理器和自定义的类型处理器均需要实现该接口才可以实现类型处理关系。
+ * 该类在系统启动过程中会注册到TypeHandlerRegistry中，而Configuration持有该类
  */
 public interface TypeHandler<T> {
 
+  /**
+   * 用于将T类型的数据设置到PreparedStatement中，sql语句中参数下标为i
+   * @param ps
+   * @param i sql语句中参数下标为i
+   * @param parameter 需要设置的数据
+   * @param jdbcType 数据库类型
+   * @throws SQLException
+   */
   void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException;
 
   /**

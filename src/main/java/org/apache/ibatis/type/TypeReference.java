@@ -24,16 +24,26 @@ import java.lang.reflect.Type;
  * @param <T> the referenced type
  * @since 3.1.0
  * @author Simone Tripodi
+ *
+ * 表示引用一个泛型类型
  */
 public abstract class TypeReference<T> {
 
+  /** 引用的类型 */
   private final Type rawType;
 
   protected TypeReference() {
     rawType = getSuperclassTypeParameter(getClass());
   }
 
+  /**
+   * 获取原始类型
+   * @param clazz
+   * @return
+   */
   Type getSuperclassTypeParameter(Class<?> clazz) {
+    //获取带有泛型的父类
+    //getGenericSuperclass  返回直接继承的父类（包含泛型参数）
     Type genericSuperclass = clazz.getGenericSuperclass();
     if (genericSuperclass instanceof Class) {
       // try to climb up the hierarchy until meet something useful
@@ -44,7 +54,9 @@ public abstract class TypeReference<T> {
       throw new TypeException("'" + getClass() + "' extends TypeReference but misses the type parameter. "
         + "Remove the extension or add a type parameter to it.");
     }
-
+    // 获取到泛型中的原始类型
+    // ParameterizedType是一个记录类型泛型的接口
+    // getActualTypeArguments()：回泛型类型数组
     Type rawType = ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
     // TODO remove this when Reflector is fixed to return Types
     if (rawType instanceof ParameterizedType) {

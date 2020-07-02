@@ -19,6 +19,7 @@ import org.apache.ibatis.exceptions.PersistenceException;
 
 /**
  * @author Clinton Begin
+ * 自定义类型转换处理出错时的异常
  */
 public class TypeException extends PersistenceException {
 

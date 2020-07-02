@@ -360,6 +360,12 @@ public class MapperMethod {
       return returnsOptional;
     }
 
+    /**
+     * 获取method方法参数中类型为paramType类型的参数下标
+     * @param method
+     * @param paramType
+     * @return
+     */
     private Integer getUniqueParamIndex(Method method, Class<?> paramType) {
       Integer index = null;
       final Class<?>[] argTypes = method.getParameterTypes();

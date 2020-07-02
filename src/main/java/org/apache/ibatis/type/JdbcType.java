@@ -21,6 +21,8 @@ import java.util.Map;
 
 /**
  * @author Clinton Begin
+ * Mybatis自定义的数据库类型，用枚举类进行封装Types类的int类型常量
+ * 系统初始化时会将所有的类型存入到codeLookup中
  */
 public enum JdbcType {
   /*

@@ -30,10 +30,20 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
  * @author Clinton Begin
+ * 整个mybatis框架的所有配置解析类的基类
+ * 此处的配置大概是
+ * mybatis-config.xml文件（XMLConfigBuilder）,
+ * mapper.xml文件（XMLMapperBuilder），
+ * mapper.xml中的<sql><foreach><trim>等节点（XMLScriptBuilder），
+ * mapper.xml中的每一条sql（XMLStatementBuilder）
+ * 配置文件的解析主要使用的是模板方法设计模式
  */
 public abstract class BaseBuilder {
+  /** 配置文件核心类 */
   protected final Configuration configuration;
+  /** 类别名和类型注册中心 */
   protected final TypeAliasRegistry typeAliasRegistry;
+  /** 类型处理器注册中心 */
   protected final TypeHandlerRegistry typeHandlerRegistry;
 
   public BaseBuilder(Configuration configuration) {
@@ -96,6 +106,12 @@ public abstract class BaseBuilder {
     }
   }
 
+  /**
+   * 从typeAliasRegistry中的typeAliases中尝试找到已经注册过的类，并将该类实例化返回
+   * 如果没找到，则通过classloader加载类并创建一个类的实例返回
+   * @param alias 类的名字
+   * @return 类的实例
+   */
   protected Object createInstance(String alias) {
     Class<?> clazz = resolveClass(alias);
     if (clazz == null) {
@@ -145,6 +161,12 @@ public abstract class BaseBuilder {
     return handler;
   }
 
+  /**
+   * typeAliasRegistry中找不到alias注册的类的话，就通过类加载器加载
+   * @param alias 要加载的类的别名
+   * @param <T> 类的类型
+   * @return 别名为alias的类的class类
+   */
   protected <T> Class<? extends T> resolveAlias(String alias) {
     return typeAliasRegistry.resolveAlias(alias);
   }
