@@ -40,7 +40,7 @@ public class PooledDataSource implements DataSource {
 
   private static final Log log = LogFactory.getLog(PooledDataSource.class);
 
-  /** 池化的状态标记,管理池化连接池中的各种状态 */
+  /** 管理池化连接池中的各种状态 */
   private final PoolState state = new PoolState(this);
 
   /** 实际上管理的还是UnpooledDataSource类，不过会根据PoolState类扩展出池化功能  */

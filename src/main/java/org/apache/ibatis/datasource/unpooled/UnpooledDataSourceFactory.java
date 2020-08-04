@@ -42,7 +42,7 @@ public class UnpooledDataSourceFactory implements DataSourceFactory {
   }
 
   /**
-   * 构造方法初始化数据源之后进行后置属性的设置
+   * 构造方法初始化之后进行后置属性的设置
    * @param properties 要设置的属性
    */
   @Override
