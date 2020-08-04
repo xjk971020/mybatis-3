@@ -22,12 +22,18 @@ import org.apache.ibatis.reflection.ReflectionException;
 /**
  * @author Clinton Begin
  */
+/** 方法属性名称的处理工具 */
 public final class PropertyNamer {
 
   private PropertyNamer() {
     // Prevent Instantiation of Static Class
   }
 
+  /**
+   * 返回某个set或者get或者is开头的方法后面的属性名
+   * @param name
+   * @return
+   */
   public static String methodToProperty(String name) {
     if (name.startsWith("is")) {
       name = name.substring(2);
@@ -44,14 +50,29 @@ public final class PropertyNamer {
     return name;
   }
 
+  /**
+   * 判断是否是属性的get或者set方法
+   * @param name 方法名
+   * @return
+   */
   public static boolean isProperty(String name) {
     return isGetter(name) || isSetter(name);
   }
 
+  /**
+   * 判断是否是属性的get方法
+   * @param name 方法名
+   * @return
+   */
   public static boolean isGetter(String name) {
     return (name.startsWith("get") && name.length() > 3) || (name.startsWith("is") && name.length() > 2);
   }
 
+  /**
+   * 判断是否是属性的set方法
+   * @param name 方法名
+   * @return
+   */
   public static boolean isSetter(String name) {
     return name.startsWith("set") && name.length() > 3;
   }

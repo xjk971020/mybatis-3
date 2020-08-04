@@ -29,6 +29,7 @@ public class ExceptionUtil {
 
   public static Throwable unwrapThrowable(Throwable wrapped) {
     Throwable unwrapped = wrapped;
+    //todo 为什么这里要用while(true)
     while (true) {
       if (unwrapped instanceof InvocationTargetException) {
         unwrapped = ((InvocationTargetException) unwrapped).getTargetException();

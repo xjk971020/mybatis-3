@@ -47,6 +47,7 @@ import org.apache.ibatis.reflection.property.PropertyNamer;
  *
  * @author Clinton Begin
  */
+/** 关于某个类的反射器,从这里可以获取到类的信息 */
 public class Reflector {
 
   private final Class<?> type;
@@ -76,6 +77,10 @@ public class Reflector {
     }
   }
 
+  /**
+   * 获取默认的构造方法(没有参数的构造方法)，并设置defaultConstructor变量为默认的构造方法
+   * @param clazz
+   */
   private void addDefaultConstructor(Class<?> clazz) {
     Constructor<?>[] constructors = clazz.getDeclaredConstructors();
     Arrays.stream(constructors).filter(constructor -> constructor.getParameterTypes().length == 0)

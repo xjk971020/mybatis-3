@@ -36,6 +36,11 @@ import org.apache.ibatis.reflection.Reflector;
 /**
  * @author Clinton Begin
  */
+
+/**
+ * 当MyBatis在构建一个结果返回的时候，都会使用objectFactory去构建POJO，
+ * 当然，我们也可以自己去定制自己的对象工厂，不过一般来说，使用默认的就够了。
+ */
 public class DefaultObjectFactory implements ObjectFactory, Serializable {
 
   private static final long serialVersionUID = -8855120656740914948L;
