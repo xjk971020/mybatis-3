@@ -23,12 +23,42 @@ public class ErrorContext {
   private static final String LINE_SEPARATOR = System.lineSeparator();
   private static final ThreadLocal<ErrorContext> LOCAL = ThreadLocal.withInitial(ErrorContext::new);
 
+  /** 保存自己 */
   private ErrorContext stored;
+
+  /**
+   * 存储异常存在于哪个资源文件中。
+   * 如：### The error may exist in mapper/AuthorMapper.xml
+   */
   private String resource;
+
+  /**
+   * 存储异常是做什么操作时发生的。
+   * 如：### The error occurred while setting parameters
+   */
   private String activity;
+
+  /**
+   * 存储哪个对象操作时发生异常。
+   * 如：### The error may involve defaultParameterMap
+   */
   private String object;
+
+  /**
+   * 存储异常的概览信息。
+   * 如：### Error querying database. Cause: java.sql.SQLSyntaxErrorException: Unknown column 'id2' in 'field list'
+   */
   private String message;
+
+  /**
+   *存储发生日常的 SQL 语句。
+   * 如：### SQL: select id2, name, sex, phone from author where name = ?
+   */
   private String sql;
+
+  /**
+   * 抛出异常的堆栈信息
+   */
   private Throwable cause;
 
   private ErrorContext() {
