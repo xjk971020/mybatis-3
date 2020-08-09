@@ -20,6 +20,11 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * @author Clinton Begin
  */
+
+/**
+ * 抽象的方法调用接口
+ * 作用是统一基于反射处理方法/属性的调用方式，他是适配器模式的一种实现。
+ */
 public interface Invoker {
   Object invoke(Object target, Object[] args) throws IllegalAccessException, InvocationTargetException;
 

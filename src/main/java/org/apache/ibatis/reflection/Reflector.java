@@ -50,13 +50,22 @@ import org.apache.ibatis.reflection.property.PropertyNamer;
 /** 关于某个类的反射器,从这里可以获取到类的信息 */
 public class Reflector {
 
+  /** 存放某个类的具体类型 */
   private final Class<?> type;
+
+  /** 可访问的变量名称，可设置代表该变量拥有get方法 */
   private final String[] readablePropertyNames;
+  /** 可设置的变量名称，可设置代表该变量拥有set方法 */
   private final String[] writablePropertyNames;
+  /** 存放该类中的变量的set方法，该set方法由SetFiledInvoker封装，key为变量名称，value为方法 */
   private final Map<String, Invoker> setMethods = new HashMap<>();
+  /** 存放该类中的变量的get方法，该get方法由GetFiledInvoker封装，key为变量名称，value为方法 */
   private final Map<String, Invoker> getMethods = new HashMap<>();
+  /** 存放set的变量名称和类型 */
   private final Map<String, Class<?>> setTypes = new HashMap<>();
+  /** 存放get的变量名称和类型 */
   private final Map<String, Class<?>> getTypes = new HashMap<>();
+  /** 某个类默认的构造器 */
   private Constructor<?> defaultConstructor;
 
   private Map<String, String> caseInsensitivePropertyMap = new HashMap<>();

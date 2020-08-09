@@ -22,6 +22,9 @@ import org.apache.ibatis.reflection.Reflector;
 /**
  * @author Clinton Begin
  */
+/**
+ * 针对某个对象的成员变量的set执行器，通过反射的方法设置某个类中某个成员变量的值
+ */
 public class SetFieldInvoker implements Invoker {
   private final Field field;
 
@@ -29,6 +32,13 @@ public class SetFieldInvoker implements Invoker {
     this.field = field;
   }
 
+  /**
+   * 设置值的方法
+   * @param target  要设置值的目标对象
+   * @param args    需要设置的设置的值
+   * @return
+   * @throws IllegalAccessException
+   */
   @Override
   public Object invoke(Object target, Object[] args) throws IllegalAccessException {
     try {
@@ -44,6 +54,10 @@ public class SetFieldInvoker implements Invoker {
     return null;
   }
 
+  /**
+   * 返回Field类型的属性
+   * @return
+   */
   @Override
   public Class<?> getType() {
     return field.getType();
